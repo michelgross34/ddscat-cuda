@@ -1,0 +1,27 @@
+GPU FINAL SECTIONS CHANGE
+=========================
+
+Targets:
+  ddscat_cuda
+  ddscat_cuda_slice
+
+Added:
+  - GPU EVALQ for Cabs/Cext/Cpha.
+  - GPU SCAT for finite-target Csca, Csca*g moments, backscatter, and F1/F2
+    selected-direction amplitudes when CMDTRQ=NOTORQ.
+  - fused phase/contribution CUDA kernel with double block accumulation.
+  - cublasZgemv for second-level block reduction.
+  - cublasDdot for angular quadrature reductions.
+  - release of 13 compact Krylov vectors before final GPU postprocessing;
+    lazy reallocation on the next iterative solve.
+
+Not changed:
+  - physical formulas and angular quadrature used by DDSCAT SCAT;
+  - DOTORQ remains on original CPU SCAT;
+  - Green/MATVEC FFT buffers remain resident for subsequent solves.
+
+FFT note:
+  Standard cuFFT samples a Cartesian k-grid, whereas DDSCAT SCAT evaluates
+  spherical/arbitrary k-vectors. The exact direct phase sum is therefore used
+  on GPU. A future optional NUFFT backend could accelerate very large angular
+  sets without requiring a huge Cartesian interpolation grid.

@@ -1,0 +1,20 @@
+DDSCAT CUDA reliable residual status
+====================================
+
+Targets:
+  ddscat_cuda       : FFT3D backend
+  ddscat_cuda_slice : low-memory SLICES backend
+
+Shared policy:
+  period                  = 20 iterations
+  vector gap              = ||r_true-r_rec|| / ||r_true||
+  restart threshold       = 1.0e-3
+  false convergence       = always forces restart
+  small gap               = keep Krylov history
+  true convergence        = accept immediately
+  full-vector CPU copies  = none for the reliable check
+
+Coverage: GPBICG, QMRCCG, PBCGS2/BiCGStab(2), BiCGStab(4),
+          GPBiCGStab(2), GPBiCGStab(4).
+PBCGST keeps its stricter true-residual check every iteration.
+PETRKP keeps its original exact A*x refresh every 10 iterations.

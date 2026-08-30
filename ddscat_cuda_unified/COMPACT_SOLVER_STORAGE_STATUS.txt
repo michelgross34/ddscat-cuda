@@ -1,0 +1,29 @@
+Compact solver storage status
+=============================
+
+Backends:
+- ddscat_cuda       : FFT3D
+- ddscat_cuda_slice : low-memory Z + XY slices
+
+Implemented:
+- IOCC-derived occupied-site index map
+- solver dimension = 3*NAT0
+- all Krylov work vectors compact
+- compact RHS and solver scratch vectors
+- GPU compact->full scatter before MATVEC
+- GPU full->compact gather after MATVEC
+- full FFT/MATVEC physics unchanged
+- compact-aware PBCGST diagonal preconditioner
+- final solution expanded back to original full DDSCAT layout
+- memory diagnostics report NAT0/NAT and solver-vector saving
+
+For a tightly boxed sphere, expected occupancy NAT0/NAT is approximately
+pi/6 = 0.523599, i.e. roughly 47.6% fewer elements per solver vector.
+
+Not changed:
+- Green tensor representation
+- full FFT/MATVEC work buffers
+- full ADIA/AOFF operator arrays
+- public Fortran/C solver dimensions
+
+Runtime GPU/nvcc 11.8 numerical validation is still required.

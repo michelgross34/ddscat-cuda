@@ -1,0 +1,49 @@
+' = DDSCAT ImageJ1 generated parameter file ='
+'**** Preliminaries ****'
+'NOTORQ' = CMDTRQ*6
+'GPBGS4' = CMDSOL*6
+'FFTW21' = CMETHD*6
+'GKDLDR' = CALPHA*6
+'NOTBIN' = CBINFLAG
+'**** Initial Memory Allocation ****'
+256 256 256 = dimensioning allowance for target generation
+'**** Target Geometry and Composition ****'
+'ELLIPSOID' = CSHAPE*9 shape directive
+16 16 16 = shape parameters 1 - 3
+1 = NCOMP
+'E:\msna6\DDSCAT\src\cmake-build-debug\material_iso_generated' = file with refractive index 1
+'**** Additional Nearfield calculation? ****'
+0 = NRFLD
+0.0 0.0 0.0 0.0 0.0 0.0
+'**** Error Tolerance ****'
+1.00e-5 = TOL
+'**** Maximum number of iterations ****'
+100 = MXITER
+'**** Integration limiter for PBC calculations ****'
+1.00e-2 = GAMMA
+'**** Angular resolution for calculation of <cos>, etc. ****'
+3.00 = ETASCA
+'**** Wavelengths (micron) ****'
+0.6327999999999999 0.6327999999999999 1 'LIN'
+'**** Refractive index of ambient medium ****'
+1.0000 = NAMBIENT
+'**** Effective Radii (micron) ****'
+1.0 1.0 1 'LIN'
+'**** Define Incident Polarizations ****'
+(0,0) (1.,0.) (0.,0.)
+1 = IORTH
+'**** Specify which output files to write ****'
+1 = IWRKSC
+'**** Specify Target Rotations ****'
+0. 0. 1 = BETAMI, BETAMX, NBETA
+0. 0. 1 = THETMI, THETMX, NTHETA
+0. 0. 1 = PHIMIN, PHIMAX, NPHI
+'**** Specify first IWAV, IRAD, IORI (normally 0 0 0) ****'
+0 0 0 = first IWAV, first IRAD, first IORI
+'**** Select Elements of S_ij Matrix to Print ****'
+9
+11 12 21 22 31 33 44 34 43
+'**** Specify Scattered Directions ****'
+'LFRAME'
+1
+0. 0. 0 0

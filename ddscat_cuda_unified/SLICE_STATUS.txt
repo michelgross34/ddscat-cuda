@@ -1,0 +1,35 @@
+DDSCAT CUDA unified SLICES backend status
+=========================================
+
+Both CUDA DLLs are compiled from cuda/ddscat_matvec_cuda.cu:
+
+  FFT3D  : no backend macro -> ddscat_matvec_cuda.dll
+  SLICES : DDSCAT_CUDA_BACKEND_SLICES=1 -> ddscat_matvec_cuda_slice.dll
+
+SLICES MATVEC now uses a fixed batch of FOUR kz slices:
+
+  - the outer kz loop advances by 4 instead of 1;
+  - one gather kernel prepares 4 slices at once;
+  - one cufftPlanMany XY plan uses batch=12 (4 slices x 3 components);
+  - the existing one-slice Green kernel is launched four times with different kz;
+  - four persistent nonblocking CUDA streams allow those Green kernels to overlap;
+  - CUDA events connect the batched forward FFT -> Green streams -> batched inverse FFT
+    without cudaStreamSynchronize in the loop;
+  - one scatter kernel writes the four completed slices back to the Z workspace.
+
+For a final partial group (when 2*NZ is not divisible by four), unused batch slots
+are zero-filled and only the active Green/scatter slices are used.
+
+SLICES explicit FFT data workspaces:
+  Z workspace      : 3 * (2*NZ) * NX * NY cufftComplex
+  XY batch4 buffer : 4 * 3 * (2*NX) * (2*NY) cufftComplex
+
+For NX=NY=NZ=128:
+  FFT3D data workspace = 384.0 MiB
+  SLICES Z workspace   =  96.0 MiB
+  SLICES XY batch4     =   6.0 MiB
+  SLICES total         = 102.0 MiB
+  explicit saving      = 282.0 MiB (73.4375%)
+
+Green is common to both backends. It remains GPU-resident. The iterative
+solvers, chunked FP64 cublasZdot path, and elementwise CUDA kernels are shared.

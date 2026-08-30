@@ -1,0 +1,41 @@
+DDSCAT CUDA / CUDA SLICES reliable-residual change
+==================================================
+
+Modified targets only:
+  - ddscat_cuda.exe       (FFT3D backend)
+  - ddscat_cuda_slice.exe (SLICES backend)
+
+Both targets use the same cuda/ddscat_matvec_cuda.cu source, so the solver
+reliability policy is identical in both DLLs.
+
+Policy:
+  - recompute true residual b-A*x every 20 outer solver iterations;
+  - also recompute immediately if recursive residual claims convergence;
+  - gap = ||r_true-r_recursive|| / ||r_true||;
+  - restart threshold = 1e-3;
+  - if gap < 1e-3, keep Krylov history unchanged;
+  - if gap >= 1e-3, replace recursive residual by true residual and restart
+    algorithm-specific Krylov recurrence while preserving current x;
+  - if recursive residual says converged but true residual does not, restart;
+  - if true residual is converged, accept it.
+
+Covered recurrence solvers:
+  GPBICG, QMRCCG, PBCGS2/BiCGStab(2), BiCGStab(4),
+  GPBiCGStab(2), GPBiCGStab(4).
+
+Special cases:
+  PBCGST already computes b-A*x every iteration; retained.
+  PETRKP already refreshes A*x exactly every 10 iterations; retained.
+
+Validation in this environment:
+  - static reliable-residual policy checker: PASS
+  - FFT3D CUDA syntax/type parse with Clang CUDA harness: PASS
+  - SLICES CUDA syntax/type parse with Clang CUDA harness: PASS
+  - complete root CMake + GCC/GFortran build/link: PASS
+  - ddscat_cuda target link: PASS
+  - ddscat_cuda_slice target link: PASS
+  - unified/slice/mixed-precision/chunked-dot static checks: PASS
+
+Not validated here:
+  - actual CUDA 11.8 nvcc compilation;
+  - runtime execution on the target NVIDIA GPU.

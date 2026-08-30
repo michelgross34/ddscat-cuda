@@ -1,0 +1,28 @@
+DDSCAT CUDA scalar precision status
+
+Vectors / MATVEC / FFT:
+- complex float32 (`cufftComplex`)
+
+Vector scalar products:
+- one shared function: dot_product_double_chunked
+- block size: 1,000,000 complex values maximum
+- float32 -> cuDoubleComplex conversion: CUDA kernel
+- conjugated reduction: cublasZdotc
+- unconjugated QMR reduction: cublasZdotu
+- partial block results: CPU cuDoubleComplex
+- final block accumulation: CPU double precision
+- norms: same cublasZdotc(a,a) function + CPU double sqrt
+- no cublasCdotc / cublasCdotu / cublasScnrm2 remains
+
+Solver recurrence coefficients / residual arithmetic:
+- cuDoubleComplex / double
+
+Vector arithmetic:
+- CUDA kernels, not cuBLAS AXPY/SCAL/COPY
+
+Transfer model inside iterations:
+- solver vectors remain GPU resident
+- no full-vector CPU<->GPU transfers for dot products
+- intentional scalar traffic for every block result (GPU reduction -> CPU)
+- one final 16-byte complex-double scalar is copied CPU -> GPU when a device
+  recurrence kernel needs the completed dot product

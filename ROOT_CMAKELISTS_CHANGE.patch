@@ -1,0 +1,12 @@
+--- /mnt/data/reliable20_orig/CMakeLists.txt	2026-08-29 21:22:19.495037512 +0000
++++ /mnt/data/reliable20_work/CMakeLists.txt	2026-08-29 21:15:26.079009632 +0000
+@@ -184,3 +184,9 @@
+     PROPERTIES
+         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+ )
++
++# Unified CUDA variants: one shared codebase builds both FFT3D and SLICES.
++option(DDSCAT_BUILD_CUDA_UNIFIED "Build ddscat_cuda and ddscat_cuda_slice from ddscat_cuda_unified" ON)
++if(DDSCAT_BUILD_CUDA_UNIFIED)
++    add_subdirectory(ddscat_cuda_unified)
++endif()

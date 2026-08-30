@@ -1,0 +1,32 @@
+PBCGS2 CUDA conversion status
+==============================
+
+Converted DDSCAT path:
+  CMDSOL='PBCGS2' -> ZBCG2, L=2, NONZERO_X=.FALSE.
+
+CUDA implementation preserves:
+  - two BiCG substeps per outer iteration;
+  - ZBCG2 complex conjugated dot products through chunked cublasZdotc;
+  - the 3x3 Hermitian Gram matrix and convex polynomial phase;
+  - omega update from Y0(L+1);
+  - DELTA=1e-2 reliable residual/update logic (RCMP / XPDT);
+  - final true residual computation;
+  - no diagonal preconditioner, matching PRECOND in zbcg2wp.f90.
+
+GPU residency:
+  RR, R0..R2, U0..U2, XP, BP and X remain device resident.
+  Green tensor, FFT work, CXADIA, CXAOFF and IOCC remain device resident.
+  No cudaMemcpy H2D or D2H appears in the iterative/reliable-update loop.
+  Only mapped residual/status scalars are read by the host for convergence and
+  reliable-update control. The solution vector is copied D2H once at solver exit.
+
+MATVEC:
+  One persistent rank-3 cufftPlanMany(batch=3) is used for X/Y/Z components.
+  Every PBCGS2 MATVEC is device-to-device.
+
+Validation performed here:
+  - CUDA/Fortran/C interface compilation with GCC/GFortran: OK.
+  - Complete DDSCAT CMake/GFortran build and link: OK.
+  - 3x3 convex-polynomial algebra checked against the Fortran formulas on
+    1000 random complex Gram matrices: OK.
+  - CUDA nvcc/GPU execution: must be validated on the CUDA 11.8 sm_70 machine.

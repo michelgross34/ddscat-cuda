@@ -1,0 +1,17 @@
+Fix for fatal error: "unrecognized CMDSOL=BICGS2" (and BICGS4/GPBGS2/GPBGS4)
+
+Cause:
+  The new selectors were added to reapar_cuda.f90 and getfml_cuda.f90, but the
+  top-level original DDSCAT.f90 contains another CMDSOL dispatch used to choose
+  NLAR / allocate CXSC. The original file did not know the four new selectors.
+
+Fix:
+  - Added fortran/DDSCAT_cuda.f90, derived from the original DDSCAT.f90.
+  - Added BICGS2, BICGS4, GPBGS2, GPBGS4 to its NLAR dispatch.
+  - CMake now builds fortran/DDSCAT_cuda.f90 instead of src/DDSCAT.f90.
+  - check_ifdda_l_solvers.py now verifies all three dispatch locations:
+      REAPAR, GETFML, DDSCAT top level.
+
+IMPORTANT FOR CLION:
+  Because the Fortran executable source changed, rebuilding only the CUDA DLL is
+  not sufficient for this fix. Reload CMake and rebuild target ddscat_cuda once.

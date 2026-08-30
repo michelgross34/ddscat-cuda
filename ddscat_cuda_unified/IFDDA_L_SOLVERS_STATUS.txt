@@ -1,0 +1,30 @@
+DDSCAT CUDA IFDDA-derived L solvers - validation status
+
+Added selectors:
+  BICGS2 = BiCGStab(2), alias to existing enhanced PBCGS2/ZBCG2 CUDA L=2
+  BICGS4 = BiCGStab(4), new CUDA solver
+  GPBGS2 = GPBiCGStab(2), new CUDA solver with reliable true-residual control
+  GPBGS4 = GPBiCGStab(4), new memory-reduced CUDA solver
+
+Preserved numerical architecture:
+  vectors/MATVEC/cuFFT = float32 complex
+  dot products = shared 1,000,000-element chunk converter + cublasZdotc/Zdotu FP64
+  chunk accumulation = CPU double precision
+  local L-minimization systems = CPU std::complex<double>
+  vector recurrences = CUDA kernels
+  full-vector H2D/D2H = solver boundaries only
+
+Validation in this environment:
+  PASS: Fortran bridge/getfml/reapar syntax with gfortran
+  PASS: C loader syntax with gcc
+  PASS: complete DDSCAT CMake/GFortran build and link (FFTW test stub)
+  PASS: CUDA translation unit host-side syntax/type check with Clang CUDA stubs
+  PASS: scripts/check_ifdda_l_solvers.py structural/precision audit
+  NOT RUN: nvcc CUDA 11.8 compilation (nvcc unavailable in this environment)
+  NOT RUN: numerical execution on NVIDIA sm_70 hardware
+
+Reference algorithms were taken from the user's previous IFDDA/ADDA CUDA work:
+  - enhanced BCGS2 / BiCGStab(2) alias
+  - memory-reduced GPBiCGStab(2)
+  - BiCGStab(4)
+  - memory-reduced GPBiCGStab(4)

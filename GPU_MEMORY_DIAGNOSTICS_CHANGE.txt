@@ -1,0 +1,44 @@
+DDSCAT CUDA Green timing + GPU memory diagnostics
+=================================================
+
+Applied to the shared CUDA source used by BOTH:
+  ddscat_cuda.exe       -> FFT3D backend
+  ddscat_cuda_slice.exe -> SLICES backend
+
+No cuda_slide target was added or changed.
+
+New diagnostics:
+1. GPU Green construction wall time in seconds and milliseconds.
+2. Before the iterative solve, after all persistent CUDA allocations and after
+   Green-only scratch has been freed:
+   - net resident Green memory;
+   - MATVEC vectors/operator/IOCC memory;
+   - MATVEC FFT data-buffer memory;
+   - solver vector memory;
+   - solver scalar / double-dot staging memory;
+   - explicit cudaMalloc subtotal;
+   - cuFFT workspace reported by plan(s);
+   - actual DDSCAT GPU allocation from cudaMemGetInfo free-memory delta;
+   - CUDA/cuFFT/cuBLAS/internal overhead;
+   - remaining GPU memory;
+   - total GPU memory;
+   - free GPU memory measured before DDSCAT allocations.
+
+The Green memory category excludes all Green-build temporaries because the
+memory report is emitted only after those temporary buffers and the temporary
+Green cuFFT plan have been destroyed/freed.
+
+For the compatibility path where Green is computed on CPU and supplied to the
+CUDA DLL, Green build time cannot be measured by CUDA; the code reports that
+fact and prints the Green H2D upload time instead.
+
+Validation in this environment:
+- existing reliable-residual and solver static audits: PASS
+- new GPU memory diagnostic audit: PASS
+- complete GCC/GFortran DDSCAT CUDA executable build/link: PASS
+- Clang CUDA syntax/type parse for FFT3D backend: PASS (fake-CUDA math warnings only)
+- Clang CUDA syntax/type parse for SLICES backend: PASS (fake-CUDA math warnings only)
+
+Not validated here:
+- real Windows nvcc 11.8 compilation
+- real GPU execution / cudaMemGetInfo values

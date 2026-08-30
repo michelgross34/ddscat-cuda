@@ -1,0 +1,25 @@
+QMRCCG CUDA conversion status
+=============================
+
+Converted:
+- QMRCCG vector recurrence to CUDA float32.
+- 10 QMR vectors GPU resident for the complete iterative solve.
+- QMR scalar recurrence GPU resident.
+- chunked cublasZdotc(a,a) + double sqrt for Euclidean norms.
+- cuBLAS Cdotu for the two unconjugated QMR products used by qmrpim2.f90.
+- A^T*w implemented exactly like original DDSCAT QMRCCG: MATVEC(w), assuming A^T=A.
+- MATVEC remains one batched rank-3 cuFFT plan with batch=3.
+- no H2D/D2H cudaMemcpy in the QMR iterative loop.
+- convergence residual communicated with mapped pinned zero-copy scalar.
+- single solution D2H transfer at solver exit.
+- CUDA DLL copied automatically into cmake-build-debug\bin.
+
+Validated in this environment:
+- modified Fortran files compile with gfortran in sp mode.
+- C loader compiles with gcc.
+- complete DDSCAT CUDA CMake target compiles and links against a local FFTW test stub.
+- static scan confirms zero H2D/D2H cudaMemcpy calls in QMR loop.
+
+Not validated here:
+- nvcc CUDA 11.8 compilation (nvcc is not installed in this execution environment).
+- numerical CPU-vs-GPU comparison on an NVIDIA sm_70 device.

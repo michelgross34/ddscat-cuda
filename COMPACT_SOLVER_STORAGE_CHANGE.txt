@@ -1,0 +1,38 @@
+DDSCAT CUDA compact solver storage change
+=========================================
+
+Applied to both generated executables:
+  ddscat_cuda.exe
+  ddscat_cuda_slice.exe
+
+The Krylov solver vectors are no longer dimensioned on all NAT sites of the
+rectangular target box. At CUDA prepare time the IOCC array is scanned and an
+occupied-site map of NAT0 indices is built. Solver vectors then have length
+3*NAT0.
+
+The FFT/MATVEC still operates on the complete rectangular grid. Before each
+solver MATVEC a CUDA kernel scatters the compact vector to the occupied entries
+of the full MATVEC input and zeroes void sites. After MATVEC another CUDA kernel
+gathers only occupied output values back into the compact vector.
+
+No geometric assumption is made. Memory reduction follows the measured fill
+factor f=NAT0/NAT. For a sphere tightly inscribed in a cube, f approaches
+pi/6=0.523599.
+
+The GPU memory report now prints NAT0/NAT, compact solver-vector bytes,
+full-grid equivalent bytes, and saved bytes/percentage.
+
+Green, FFT work buffers and the physical MATVEC are unchanged. ADIA/AOFF remain
+full-grid operator arrays. PBCGST's diagonal preconditioner uses the occupied
+map to read the correct full-grid diagonal entry.
+
+Validation in this environment:
+- complete GCC/GFortran CMake build and link of both executables: PASS
+- CUDA host-side syntax/type parse, FFT3D backend: PASS
+- CUDA host-side syntax/type parse, SLICES backend: PASS
+- compact-storage audit over all 8 CUDA solver entry points: PASS
+- gather/scatter layout round-trip test: PASS
+- existing reliable-residual, mixed-precision, SLICES and zero-copy audits: PASS
+
+Actual NVCC 11.8 compilation and GPU numerical comparison remain required on
+the target machine.

@@ -1,0 +1,35 @@
+PETRKP CUDA conversion status
+=============================
+
+Converted DDSCAT path:
+  CMDSOL='PETRKP' -> PETR90VER2.
+
+CUDA implementation preserves:
+  - ACE = A^H B using the existing CWHAT='C' CUDA MATVEC path;
+  - GI = ACE initially and PI = GI;
+  - alpha = (GI^H GI)/(QI^H QI), QI = A PI;
+  - GI = ACE - A^H AXI;
+  - beta = (GI^H GI)/(GI_prev^H GI_prev);
+  - X <- X + alpha PI;
+  - recursive AXI <- AXI + alpha QI;
+  - exact AXI=A X refresh every 10th iteration, as in PETR90VER2;
+  - true relative residual sqrt((R^H R)/(B^H B)), R=AXI-B;
+  - no preconditioner, matching GETFML CG%PRECONTYPE=NONE.
+
+GPU residency:
+  ACE, GI, PI, QI, AXI, R, X and B stay on the GPU.
+  Green tensor, FFT workspace, CXADIA, CXAOFF and IOCC stay on the GPU.
+  The iterative loop contains no cudaMemcpy H2D or D2H.
+  Convergence uses one mapped zero-copy residual scalar.
+  X is copied D2H once at solver exit.
+
+MATVEC / CMATVEC:
+  Both A and A^H products use the persistent batched rank-3 cuFFT plan
+  (cufftPlanMany batch=3 for X/Y/Z components).
+
+Validation performed here:
+  - CUDA/Fortran/C interface syntax compilation with GCC/GFortran: OK.
+  - Complete DDSCAT CMake/GFortran build and link: OK.
+  - PETR recurrence algebra compared to PETR90VER2 on random complex matrices: OK.
+  - Static audit of iterative loop: zero cudaMemcpy calls.
+  - CUDA 11.8 nvcc/GPU execution must be validated on the target sm_70 machine.

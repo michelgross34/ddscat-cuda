@@ -1,0 +1,28 @@
+PBCGST CUDA conversion status
+=============================
+
+Converted:
+- DDSCAT PIMCBICGSTAB/PBCGST recurrence to CUDA float32.
+- exact DDSCAT configuration PRECONTYPE=1 (left diagonal DIAGL) and STOPTYPE=2.
+- DIAGL implemented on GPU as u/CXADIA.
+- DDSCAT restart length preserved: 5 BiCGStab iterations per restart.
+- true residual criterion preserved: ||b-Ax||/||b|| <= TOL.
+- all PBCGST work vectors remain GPU resident.
+- cuBLAS Cdotc for rho, xi, t^H t and t^H s.
+- chunked cublasZdotc(a,a) + double sqrt for s and true-residual norms.
+- MATVEC remains batched rank-3 cuFFT, batch=3.
+- no cudaMemcpy of any kind inside the PBCGST iteration/restart loop.
+- convergence/status exposed with mapped pinned zero-copy scalars.
+- single solution D2H transfer at solver exit.
+- CUDA DLL copied automatically to cmake-build-debug\bin.
+
+Validated here:
+- cuda_matvec_bridge.f90 compiles with gfortran in sp mode.
+- getfml_cuda.f90 compiles with gfortran in sp mode.
+- C dynamic loader compiles with gcc.
+- complete DDSCAT CUDA CMake target compiles and links with a local FFTW stub.
+- static scan confirms zero cudaMemcpy calls in the PBCGST iterative/restart loop.
+
+Not validated here:
+- nvcc CUDA 11.8 compilation (nvcc is unavailable in this environment).
+- numerical CPU-vs-GPU PBCGST comparison on the NVIDIA sm_70 target.

@@ -1,0 +1,34 @@
+DDSCAT CUDA SLICES batch-4 / four-stream change
+================================================
+
+Changed only the common CUDA source used to build the SLICES DLL; FFT3D remains
+available from the same source.
+
+SLICES changes:
+- outer kz loop: kz0 += 4;
+- gather: one CUDA kernel for up to 4 slices;
+- XY cuFFT plan: batch=12 = 4 slices * 3 vector components;
+- Green kernel: existing one-slice slice_green_xy_kernel remains unchanged;
+- Green launches: up to four kernels with kz=kz0+0..3;
+- Green concurrency: four persistent cudaStreamNonBlocking streams;
+- dependencies: cudaEventRecord + cudaStreamWaitEvent, no cudaStreamSynchronize
+  in the kz batch loop;
+- inverse XY cuFFT: one batch=12 call;
+- scatter: one CUDA kernel for up to four active slices;
+- partial final group is supported by zero-filled unused gather slots.
+
+Memory for NX=NY=NZ=128:
+- Z workspace: 96 MiB;
+- XY batch-4 buffer: 6 MiB;
+- total explicit SLICES FFT data: 102 MiB;
+- full FFT3D buffer: 384 MiB;
+- explicit saving: 282 MiB = 73.4375%.
+
+Checks performed:
+- static layout checker: PASS;
+- batch4 gather/scatter indexing vs old single-slice semantics: PASS, including
+  partial final batches;
+- isolated modified SLICES kernels/matvec CUDA syntax check with Clang CUDA
+  host parser and stubs: PASS.
+
+Actual nvcc 11.8 + sm_70 execution remains to be validated on the target GPU.
