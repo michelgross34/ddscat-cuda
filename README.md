@@ -200,3 +200,22 @@ The original DDSCAT project and documentation are available at [github.com/DDSCA
 ## Status
 
 The repository is intended for research and development. Final performance and numerical validation should be performed on the target NVIDIA GPU, comparing CPU and GPU results for solver residuals, iteration counts, `Qext`, `Qabs`, `Qsca`, and the corresponding physical scattering cross sections.
+
+## AI-generated code and provenance
+
+The code in this repository was generated entirely with AI assistance from
+the original DDSCAT 7.3.4 source distribution published by the
+[DDSCAT project](https://github.com/DDSCAT/current).
+At each development stage, the AI produced a ZIP archive containing the
+complete state of the code. This GitHub repository corresponds to the code
+delivered in the latest ZIP archive produced by ChatGPT.
+
+The first `CMakeLists.txt` file and the final GitHub repository setup were
+produced with **GPT-5.6 Luna (medium/fast)**. The CUDA implementation and the
+successive code modifications were produced with **GPT-5.6 Sol** in Web mode,
+the most capable model in the current GPT-5.6 family according to the
+[official OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model).
+
+The Web context was sufficient to handle the DDSCAT source code and its CUDA
+integration. This project should nevertheless be independently reviewed and
+validated before use in production or scientific publication.
