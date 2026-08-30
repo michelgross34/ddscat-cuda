@@ -157,8 +157,8 @@ ddscat_matvec_cuda_slice.dll
 
 ## Running DDSCAT
 
-For a CLion CMake build, the executable, CUDA DLLs, and parameter files are
-located in `cmake-build-debug/bin`. The material-index directory `diel` is
+For a CLion CMake build in **Debug mode**, the executable, CUDA DLLs, and
+parameter files are located in `cmake-build-debug/bin`. The material-index directory `diel` is
 located in `cmake-build-debug/diel`, at the same level as `bin`:
 
 ```text
