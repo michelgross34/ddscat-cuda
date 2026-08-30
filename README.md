@@ -15,6 +15,37 @@ Single precision is the default for the CUDA targets. Numerical results should b
 
 The repository also includes diagnostic and validation material for solver residuals, GPU memory usage, sliced FFT processing, and final scattering cross sections.
 
+## CUDA version and GPU compatibility
+
+The CUDA code is compiled with **CUDA 11.8** and targets NVIDIA GPUs with a
+limited compute capability of **7.0**. The CUDA toolkit and the NVIDIA driver
+must support the target GPU.
+
+Two functionally equivalent CUDA executables are provided:
+
+- `ddscat_cuda.exe`
+- `ddscat_cuda_slice.exe`
+
+Both versions implement the same DDSCAT calculations and produce equivalent
+scientific results. They differ only in the way the 3-D FFT used by MATVEC is
+handled:
+
+### `ddscat_cuda.exe`
+
+This is the faster version. MATVEC uses fully optimized 3-D FFT operations on
+the GPU, providing the best performance when the available GPU memory is
+sufficient for the complete FFT workspace.
+
+### `ddscat_cuda_slice.exe`
+
+This is the lower-memory version. MATVEC first performs an FFT along the slow
+`z` axis. The data is then divided into batches of four slices, and 3-D FFT
+operations are performed on the `x-y` slices.
+
+The sliced implementation is slower because it processes the transform in
+several batches, but it requires less GPU memory and can therefore handle
+larger computational grids on GPUs with limited memory.
+
 ## Windows build environment
 
 The provided Windows build setup uses the MinGW-w64 toolchain:
