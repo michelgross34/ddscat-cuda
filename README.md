@@ -28,27 +28,70 @@ MPI is not required. The code uses the non-MPI DDSCAT configuration.
 
 ## FFTW installation
 
-The project expects a directory named `FFTW` at the repository root:
+The project expects a directory named `fftw` (also written `FFTW`; Windows
+paths are case-insensitive) at the repository root:
 
 ```text
 ddscat-cuda/
-├── FFTW/
+├── fftw/
 ├── ddscat_cuda_unified/
 ├── CMakeLists.txt
 └── ...
 ```
 
-For the default single-precision build, `FFTW` must contain at least the following files:
+For the default single-precision MinGW-w64 build, the essential files are:
 
 ```text
-FFTW/
+fftw/
 ├── fftw3.h
 ├── libfftw3f.a
-├── libfftw3f.dll.a       # MinGW-w64 import library, if supplied separately
+├── libfftw3f.dll.a       # MinGW-w64 import library
 └── libfftw3f-3.dll       # runtime DLL
 ```
 
-The Fortran interface file `fftw3.f03` may also be kept in this directory for reference or for other Fortran FFTW integrations. The CUDA backend itself uses cuFFT for GPU FFT operations, while the CPU/reference path uses FFTW3 where configured.
+The supplied FFTW directory also contains the following optional/reference
+files:
+
+```text
+fftw3.f
+fftw3.f03
+fftw3l.f03
+fftw3q.f03
+libfftw3.a
+libfftw3.dll.a
+libfftw3-3.dll
+libfftw3f-3.exp
+libfftw3f-3.lib
+libfftw3f_omp.a
+libfftw3f_omp.dll.a
+libfftw3f_omp-3.dll
+libfftw3f_threads.a
+libfftw3f_threads.dll.a
+libfftw3f_threads-3.dll
+libfftw3l.a
+libfftw3l.dll.a
+libfftw3l-3.dll
+libfftw3l_omp.a
+libfftw3l_omp.dll.a
+libfftw3l_omp-3.dll
+libfftw3l_threads.a
+libfftw3l_threads.dll.a
+libfftw3l_threads-3.dll
+libfftw3q.a
+libfftw3q_omp.a
+libfftw3q_threads.a
+libfftw3_omp.a
+libfftw3_omp.dll.a
+libfftw3_omp-3.dll
+libfftw3_threads.a
+libfftw3_threads.dll.a
+libfftw3_threads-3.dll
+```
+
+The `fftw-wisdom-to-conf`, `fftw-wisdom.exe`, `fftwf-wisdom.exe`,
+`fftwl-wisdom.exe`, and `fftwq-wisdom.exe` utilities are not required to
+build DDSCAT. The CUDA backend itself uses cuFFT for GPU FFT operations,
+while the CPU/reference path uses FFTW3 where configured.
 
 If FFTW is installed elsewhere, configure CMake with:
 
