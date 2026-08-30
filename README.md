@@ -157,32 +157,33 @@ ddscat_matvec_cuda_slice.dll
 
 ## Running DDSCAT
 
-Run DDSCAT from the directory containing the executable. The parameter file
-`ddscat.par` must be in the same directory as the executable, and the
-material-data directory `diel` must be located directly below it:
+For a CLion CMake build, the executable, CUDA DLLs, and parameter files are
+located in `cmake-build-debug/bin`. The material-index directory `diel` is
+located in `cmake-build-debug/diel`, at the same level as `bin`:
 
 ```text
-bin/
-├── ddscat_cuda.exe
-├── ddscat_cuda_slice.exe
-├── ddscat_matvec_cuda.dll
-├── ddscat_matvec_cuda_slice.dll
-├── ddscat.par
+cmake-build-debug/
+├── bin/
+│   ├── ddscat_cuda.exe
+│   ├── ddscat_cuda_slice.exe
+│   ├── ddscat_matvec_cuda.dll
+│   ├── ddscat_matvec_cuda_slice.dll
+│   └── ddscat.par
 └── diel/
     └── ... dielectric material files ...
 ```
 
-For example:
+Run DDSCAT with `bin` as the current working directory:
 
 ```powershell
-cd path/to/the/executable
+cd path/to/cmake-build-debug/bin
 .\ddscat_cuda.exe
 ```
 
-The file `ddscat.par` is read from the current working directory. Material
-files are resolved relative to that directory, for example
-`diel/m0.96_1.01`. Target files and other input paths are also resolved
-relative to the executable's working directory.
+The file `ddscat.par` is read from the current working directory. Since the
+material directory is one level above `bin`, material files should be
+referenced in the parameter file as `../diel/m0.96_1.01`. Target files and
+other input paths are also resolved relative to `cmake-build-debug/bin`.
 
 ## Repository layout
 
